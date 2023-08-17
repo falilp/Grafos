@@ -85,9 +85,22 @@ T DiamatroGrafo(const std::vector<T> vec){
 }
 
 template <typename T>
-typename GrafoP<T>::vertice Pseudocentro(const GrafoP<T> &G){
-    typedef GrafoP<T>::vertice Nodo;
+typename GrafoP<T>::vertice Pseudocentro(const GrafoP<T> &G,T& Diametro){
+    typename GrafoP<T>::vertice Nodo,Centro;
+    const size_t tam = G.numVert();
+    size_t MinDiametro = GrafoP<T>::INFINITO;
 
+    std::vector<std::vector<T>> Aux = Floyd(G);
+
+    for(Nodo=0; Nodo<tam; Nodo++){
+        T MinAux = DiamatroGrafo(Aux);
+        if(MinDiametro > MinAux){
+            MinDiametro = MinAux;
+            Centro=Nodo;
+        }
+    }
+    
+    Diametro = MinDiametro;
     return Nodo;
 }
 
