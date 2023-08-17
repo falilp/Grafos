@@ -87,7 +87,6 @@ T DiamatroGrafo(const std::vector<T> vec){
 template <typename T>
 typename GrafoP<T>::vertice Pseudocentro(const GrafoP<T> &G){
     typedef GrafoP<T>::vertice Nodo;
-    T 
 
     return Nodo;
 }
