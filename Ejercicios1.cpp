@@ -105,6 +105,47 @@ typename GrafoP<T>::vertice Pseudocentro(const GrafoP<T> &G,T& Diametro){
 }
 
 #pragma endregion
+
+#pragma region Ejercicio3
+/*Comprobar si un Grafo de costes es Acíclico*/
+
+template <typename T>
+bool Ciclos(const GrafoP<T> &G, typename GrafoP<T>::vertice i, std::vector<bool> &visitados, std::vector<bool> &guardados){
+    typedef typename GrafoP<T>::vertice vertice;
+    visitados[i] = true;
+    guardados[i] = true;
+
+    for(vertice indice=0; indice<G[i]; indice++){
+        if(!visitados[indice]){
+            if(Ciclos(G,indice,visitados,guardados)){
+                return true;
+            }
+        }else if(guardados[indice]){
+            return true;
+        }
+    }
+
+    return guardados[i];
+}
+
+template <typename T>
+bool GrafoAciclico(const GrafoP<T> &G){
+    typedef typename GrafoP<T>::vertice vertice;
+    const size_t tam = G.numVert();
+    bool ciclico = false;
+    std::vector<bool> visitados(tam,false);
+    std::vector<bool> guardados(tam,false);
+
+    for(vertice indice=0; indice<tam && !ciclico; indice++){
+        if(!visitados[indice] && Ciclos(G,indice,visitados,guardados)){
+            ciclico = true;
+        }
+    }
+    
+    return !ciclico;
+}
+
+#pragma endregion
 /*
 Code by Falilp
 */
