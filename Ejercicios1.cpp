@@ -93,7 +93,7 @@ typename GrafoP<T>::vertice Pseudocentro(const GrafoP<T> &G,T& Diametro){
     std::vector<std::vector<T>> Aux = Floyd(G);
 
     for(Nodo=0; Nodo<tam; Nodo++){
-        T MinAux = DiamatroGrafo(Aux);
+        T MinAux = DiamatroGrafo(Aux[Nodo]);
         if(MinDiametro > MinAux){
             MinDiametro = MinAux;
             Centro=Nodo;
@@ -101,7 +101,7 @@ typename GrafoP<T>::vertice Pseudocentro(const GrafoP<T> &G,T& Diametro){
     }
     
     Diametro = MinDiametro;
-    return Nodo;
+    return Centro;
 }
 
 #pragma endregion
