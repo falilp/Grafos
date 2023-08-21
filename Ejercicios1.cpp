@@ -153,18 +153,21 @@ bool GrafoAciclico(const GrafoP<T> &G){
 /*Se  necesita  hacer  un  estudio  de  las  distancias  mínimas  necesarias  para  viajar  entre 
 dos  ciudades  cualesquiera  de  un  país  llamado  Zuelandia.  El  problema  es  sencillo  pero 
 hay que tener en cuenta unos pequeños detalles: 
-a) La orografía de Zuelandia es un poco especial, las carreteras son muy estrechas 
-y por tanto solo permiten un sentido de la circulación. 
-b) Actualmente  Zuelandia  es  un  país  en  guerra.  Y  de  hecho  hay  una  serie  de 
-ciudades  del  país  que  han  sido  tomadas  por  los  rebeldes,  por  lo  que  no  pueden 
-ser usadas para viajar. 
-c) Los  rebeldes  no  sólo  se  han  apoderado  de  ciertas  ciudades  del  país,  sino  que 
-también han cortado ciertas carreteras, (por lo que estas carreteras no pueden ser 
-usadas). 
-d) Pero  el  gobierno  no  puede  permanecer  impasible  ante  la  situación  y  ha  exigido 
-que absolutamente todos los viajes que se hagan por el país pasen por la capital 
-del mismo, donde se harán los controles de seguridad pertinentes. 
- 
+    a) La orografía de Zuelandia es un poco especial, las carreteras son muy estrechas 
+    y por tanto solo permiten un sentido de la circulación. 
+
+    b) Actualmente  Zuelandia  es  un  país  en  guerra.  Y  de  hecho  hay  una  serie  de 
+    ciudades  del  país  que  han  sido  tomadas  por  los  rebeldes,  por  lo  que  no  pueden 
+    ser usadas para viajar. 
+
+    c) Los  rebeldes  no  sólo  se  han  apoderado  de  ciertas  ciudades  del  país,  sino  que 
+    también han cortado ciertas carreteras, (por lo que estas carreteras no pueden ser 
+    usadas). 
+
+    d) Pero  el  gobierno  no  puede  permanecer  impasible  ante  la  situación  y  ha  exigido 
+    que absolutamente todos los viajes que se hagan por el país pasen por la capital 
+    del mismo, donde se harán los controles de seguridad pertinentes. 
+
 Dadas estas cuatro condiciones, se pide implementar un subprograma que dados 
 • el grafo (matriz de costes) de Zuelandia en situación normal, 
 • la relación de las ciudades tomadas por los rebeldes, 
@@ -172,6 +175,41 @@ Dadas estas cuatro condiciones, se pide implementar un subprograma que dados
 • y la capital de Zuelandia, 
 calcule la matriz de costes mínimos para viajar entre cualesquiera dos ciudades 
 zuelandesas en esta situación.*/
+
+template <typename T>
+std::vector<std::vector<T>>& Zuelandia(GrafoP<T> &G, std::vector<typename GrafoP<T>::vertice> &CiudadesGuerra, std::vector<std::vector<bool>> &CarreterasCortadas, const typename GrafoP<T>::vertice Capital){
+    std::vector<std::vector<T>> mapaFinal;
+    const typename GrafoP<T>::vertice i,j;
+
+    for(i=0; i<CiudadesGuerra.size(); i++){
+        for(j=0; j<G.numVert(); j++){
+            G[j][CiudadesGuerra[i]] = G.INFINITO;
+            G[CiudadesGuerra[i]][j] = G.INFINITO;
+        }
+    }
+
+    for(i=0; i<CarreterasCortadas.size(); i++){
+        for(j=0; j<CarreterasCortadas.size(); j++){
+            if(CarreterasCortadas[i][j]){
+                G[i][j] = G.INFINITO;
+            }
+        }
+    }
+
+    mapaFinal = Floyd(G);
+
+    for(i=0; i<G.numVert(); i++){
+        for(j=0; j<G.numVert(); j++){
+            if(mapaFinal[i][Capital] == G.INFINITO || mapaFinal[Capital][j] == G.INFINITO){
+                mapaFinal[i][j] = G.INFINITO;
+            }else if(i != j){
+                mapaFinal[i][j] =  mapaFinal[i][Capital] +  mapaFinal[Capital][j];
+            }
+        }
+    }
+
+    return mapaFinal;
+}
 
 #pragma endregion
 /*
