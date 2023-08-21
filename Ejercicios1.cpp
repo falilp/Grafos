@@ -110,40 +110,68 @@ typename GrafoP<T>::vertice Pseudocentro(const GrafoP<T> &G,T& Diametro){
 /*Comprobar si un Grafo de costes es Acíclico*/
 
 template <typename T>
-bool Ciclos(const GrafoP<T> &G, typename GrafoP<T>::vertice i, std::vector<bool> &visitados, std::vector<bool> &guardados){
-    typedef typename GrafoP<T>::vertice vertice;
-    visitados[i] = true;
-    guardados[i] = true;
+bool Ciclico(const GrafoP<T> &G, typename GrafoP<T>::vertice nodo, std::vector<bool> visitados, std::vector<bool> apilados){
+    const size_t tam = G.numVert();
+    typename GrafoP<T>::vertice nodos;
+    visitados[nodo] = true;
+    apilados[nodo] = true;
 
-    for(vertice indice=0; indice<G[i]; indice++){
-        if(!visitados[indice]){
-            if(Ciclos(G,indice,visitados,guardados)){
+    for(nodos=0; nodos<G[nodos]; nodos++){
+        if(!visitados[nodos]){
+            if(Ciclico(G,nodos,visitados,apilados)){
                 return true;
             }
-        }else if(guardados[indice]){
+        }else if(apilados[nodos]){
             return true;
         }
-    }
+    }    
 
-    return guardados[i];
+    apilados[nodo] = false;
+    return apilados[nodo];
 }
 
 template <typename T>
 bool GrafoAciclico(const GrafoP<T> &G){
-    typedef typename GrafoP<T>::vertice vertice;
     const size_t tam = G.numVert();
-    bool ciclico = false;
-    std::vector<bool> visitados(tam,false);
-    std::vector<bool> guardados(tam,false);
+    typename GrafoP<T>::vertice nodos;
+    bool Aciclico = true;
+    std::vector<bool> visitados(tam,false),apilados(tam,false);
 
-    for(vertice indice=0; indice<tam && !ciclico; indice++){
-        if(!visitados[indice] && Ciclos(G,indice,visitados,guardados)){
-            ciclico = true;
+    for(nodos=0; nodos<tam && Aciclico; nodos++){
+        if(!visitados[nodos] && Ciclico(G,nodos,visitados,apilados)){
+            Aciclico = false;
         }
     }
-    
-    return !ciclico;
+
+    return Aciclico;
 }
+
+#pragma endregion
+
+#pragma region Ejercicio4
+
+/*Se  necesita  hacer  un  estudio  de  las  distancias  mínimas  necesarias  para  viajar  entre 
+dos  ciudades  cualesquiera  de  un  país  llamado  Zuelandia.  El  problema  es  sencillo  pero 
+hay que tener en cuenta unos pequeños detalles: 
+a) La orografía de Zuelandia es un poco especial, las carreteras son muy estrechas 
+y por tanto solo permiten un sentido de la circulación. 
+b) Actualmente  Zuelandia  es  un  país  en  guerra.  Y  de  hecho  hay  una  serie  de 
+ciudades  del  país  que  han  sido  tomadas  por  los  rebeldes,  por  lo  que  no  pueden 
+ser usadas para viajar. 
+c) Los  rebeldes  no  sólo  se  han  apoderado  de  ciertas  ciudades  del  país,  sino  que 
+también han cortado ciertas carreteras, (por lo que estas carreteras no pueden ser 
+usadas). 
+d) Pero  el  gobierno  no  puede  permanecer  impasible  ante  la  situación  y  ha  exigido 
+que absolutamente todos los viajes que se hagan por el país pasen por la capital 
+del mismo, donde se harán los controles de seguridad pertinentes. 
+ 
+Dadas estas cuatro condiciones, se pide implementar un subprograma que dados 
+• el grafo (matriz de costes) de Zuelandia en situación normal, 
+• la relación de las ciudades tomadas por los rebeldes, 
+• la relación de las carreteras cortadas por los rebeldes 
+• y la capital de Zuelandia, 
+calcule la matriz de costes mínimos para viajar entre cualesquiera dos ciudades 
+zuelandesas en esta situación.*/
 
 #pragma endregion
 /*
