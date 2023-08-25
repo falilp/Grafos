@@ -262,7 +262,84 @@ std::map<bool,double> CementosZuelandia(GrafoP<Tcoste> &G, typename GrafoP<Tcost
 #pragma endregion
 
 #pragma region Ejercicio5
+/*Se  dispone  de  tres  grafos  que  representan  la  matriz  de  costes  para  viajes  en  un  
+determinado país pero por diferentes medios de transporte, por supuesto todos los grafos 
+tendrán  el  mismo  número  de  nodos.  El  primer  grafo  representa  los  costes  de  ir  por  
+carretera, el segundo en tren y el tercero en avión. Dado un viajero que dispone de una 
+determinada cantidad de dinero, que es alérgico a uno de los tres medios de transporte, y 
+que  sale  de  una  ciudad  determinada,  implementar  un  subprograma  que  determine  las  
+ciudades a las que podría llegar nuestro infatigable viajero.*/
 
+//supondre que se le pasa a la función dos grafos, puesto a que uno se descarta por que es alérgico a uno de los tres medios de transporte.
+
+template <typename Tcoste>
+std::vector<bool> Viajero(GrafoP<Tcoste> &G1, GrafoP<Tcoste> &G2, typename GrafoP<Tcoste>::vertice Origen, int dinero){
+    std::vector<bool> visitados(G1.numVert(),false);
+    std::vector<typename GrafoP<Tcoste>::vertice> vertG1,vertG2;
+
+    std::vector<Tcoste> costesG1 = Dijkstra(G1,Origen,vertG1);
+    std::vector<Tcoste> costesG2 = Dijkstra(G2,Origen,vertG2);
+
+    for(size_t indice=0; indice<costesG1.size(); indice++){
+        if(Origen != indice && costesG1[indice] => costesG2[indice]){
+            dinero -= costesG1[indice];
+        }else if(Origen != indice  && costesG1[indice] < costesG2[indice]){
+            dinero -= costesG2[indice];
+        }
+
+        visitados[indice] = (dinero >= 0);
+    }
+
+    return visitados;
+}
+
+#pragma endregion
+
+#pragma region Ejercicio6
+/*Al  dueño  de  una  agencia  de  transportes  se  le  plantea  la  siguiente  situación.  La  
+agencia  de  viajes  ofrece  distintas  trayectorias  combinadas  entre  N  ciudades  españolas  
+utilizando tren y autobús. Se dispone de dos grafos que representan los costes (matriz de 
+costes)  de  viajar  entre  diferentes  ciudades,  por  un  lado  en  tren,  y  por  otro  en  autobús  
+(por supuesto entre las ciudades que tengan línea directa entre ellas). Además coincide 
+que los taxis de toda España se encuentran en estos momentos en huelga general, lo que 
+implica  que  sólo  se  podrá  cambiar  de  transporte  en  una  ciudad  determinada  en  la  que,  
+por casualidad, las estaciones de tren y autobús están unidas. 
+Implementa una función que calcule la tarifa mínima (matriz de costes mínimos) de 
+viajar entre cualesquiera de las N ciudades disponiendo del grafo de costes en autobús, 
+del grafo de costes en tren, y de la ciudad que tiene las estaciones unidas.*/
+
+template <typename Tcoste>
+matriz<Tcoste> TarifaMinima(GrafoP<Tcoste> &Autobus, GrafoP<Tcoste> &Tren){
+    GrafoP<Tcoste> Aux(Autobus.numVert());
+    matriz<Tcoste> MatrizAux;
+    typedef typename GrafoP<Tcoste>::vertice vertice;
+
+    for(vertice i=0; i<Autobus.numVert(); i++){
+        for(vertice j=0; j<Autobus.numVert(); j++){
+            if(Autobus[i][j] != Autobus.INFINITO){
+                Aux[i][j] = Autobus[i][j];
+            }
+            if(Tren[i][j] != Autobus.INFINITO){
+                Aux[i][j] = std::min(Aux[i][j],Tren[i][j]);
+            }
+        }
+    }
+
+    matriz<Tcoste> TarifaMin = Floyd(Aux,MatrizAux);
+
+    return TarifaMin;
+}
+
+#pragma endregion
+
+#pragma region EjercicioExtra
+/*
+Disponemos de dos grafos que nos indican los precios de viajar entre diferentes ciudades por tren y por avion
+Del coste del taxi para cambiar dentro de una misma ciudad de tren a avion y viceversa
+Asumiendo que el coste del taxi es constante e igual para todas las ciudades,
+implementa una función que calcule el camino y el coste mínimo para ir de la ciudad
+origen a la ciudad destino.
+*/
 #pragma endregion
 /*
 Code by Falilp
