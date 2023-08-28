@@ -332,6 +332,85 @@ matriz<Tcoste> TarifaMinima(GrafoP<Tcoste> &Autobus, GrafoP<Tcoste> &Tren){
 
 #pragma endregion
 
+#pragma region Ejercicio7
+/*Se dispone de dos grafos (matriz de costes) que representan los costes de viajar entre 
+N  ciudades  españolas  utilizando  el  tren  (primer  grafo)  y  el  autobús  (segundo  grafo).  
+Ambos grafos representan viajes entre las mismas N ciudades. 
+Nuestro objetivo es hallar el camino de coste mínimo para viajar entre dos ciudades 
+concretas del grafo, origen y destino, en las siguientes condiciones: 
+
+-La ciudad origen sólo dispone de transporte por tren. 
+-La ciudad destino sólo dispone de transporte por autobús. 
+-El sector del taxi, bastante conflictivo en nuestros problemas, sigue en huelga, 
+
+por  lo  que  únicamente  es  posible  cambiar  de  transporte  en  dos  ciudades  del  
+grafo,  cambio1  y  cambio2,  donde  las  estaciones  de  tren  y  autobús  están  
+unidas. 
+Implementa  un  subprograma  que  calcule  la  ruta  y  el  coste  mínimo  para  viajar  entre  
+las ciudades Origen y Destino en estas condiciones.*/
+
+template <typename Tcoste>
+struct Viaje{
+    size_t coste;
+    std::vector<typename GrafoP<Tcoste>::vertice> camino;
+};
+
+
+template <typename Tcoste>
+GrafoP<Tcoste> CrearSuperGrafo(GrafoP<Tcoste> &G1, GrafoP<Tcoste> &G2){
+    size_t SumaVertices = tren.numVert() + autobus.numVert();
+    GrafoP<Tcoste> SuperGrafo(SumaVertices);
+
+    for(size_t i=0; i<G1.numVert(); i++){
+        for(size_t j=0; j<G1.numVert(); j++){
+            SuperGrafo[i][j] = G1[i][j];
+        }
+    }
+    for(size_t i=0; i<G2.numVert(); i++){
+        for(size_t j=0; j<G2.numVert(); j++){
+            SuperGrafo[i+G1.numVert()][j+G1.numVert()] = G2[i][j];
+        }
+    }
+
+    return SuperGrafo;
+}
+
+template <typename Tcoste>
+Viaje<Tcoste> ViajeRuta(GrafoP<Tcoste> &tren, GrafoP<Tcoste> &autobus, typename GrafoP<Tcoste>::vertice Cambio1, typename GrafoP<Tcoste>::vertice Cambio2,typename GrafoP<Tcoste>::vertice Origen, typename GrafoP<Tcoste>::vertice Destino){
+    Viaje<Tcoste> viaje;
+    size_t SumaVertices = tren.numVert() + autobus.numVert();
+    GrafoP<Tcoste> SuperGrafo(SumaVertices);
+    SuperGrafo = CrearSuperGrafo(tren,autobus);
+
+    SuperGrafo[Cambio1][Cambio1+tren.numVert()]=0;
+    SuperGrafo[Cambio1+tren.numVert()][Cambio1]=0;
+    SuperGrafo[Cambio2][Cambio2+tren.numVert()]=0;
+    SuperGrafo[Cambio2+tren.numVert()][Cambio2]=0;
+
+    matriz<Tcoste> caminos;
+    matriz<Tcoste> GrafoFinal = Floyd(SuperGrafo,caminos);   
+    viaje.coste = GrafoFinal[Origen][Destino];
+
+    typename GrafoP<Tcoste>::vertice aux = caminos[Origen][Destino];
+    //intermedio = caminos[Origen][Destino];
+    //aux = origen
+    viaje.camino.push_back(Origen);
+    while(aux != Destino){
+        //intermedio != destino
+        //Incluir un vertice mas auxiliar
+        //intermedio = caminos[aux][intermedio];
+        //aux = intermedio
+        aux = caminos[Origen][aux];
+        viaje.camino.push_back(aux);
+        //viaje.camino.push_back(intermedio);
+    }    
+    viaje.camino.push_back(Destino);
+
+    return viaje;
+}
+
+#pragma endregion
+
 #pragma region EjercicioExtra
 /*
 Disponemos de dos grafos que nos indican los precios de viajar entre diferentes ciudades por tren y por avion
