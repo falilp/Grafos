@@ -398,7 +398,7 @@ Viaje<Tcoste> ViajeRuta(GrafoP<Tcoste> &tren, GrafoP<Tcoste> &autobus, typename 
     viaje.camino.push_back(Origen);
     while(intermedio != Destino){
         viaje.camino.push_back(intermedio);
-        
+
         aux = intermedio;
         intermedio = caminos[vertice][intermedio];
         vertice = aux;
@@ -409,6 +409,150 @@ Viaje<Tcoste> ViajeRuta(GrafoP<Tcoste> &tren, GrafoP<Tcoste> &autobus, typename 
 }
 
 #pragma endregion
+
+#pragma region Ejercicio8
+/*“UN  SOLO  TRANSBORDO,  POR  FAVOR”.  Este  es  el  título  que  reza  en  tu  
+flamante  compañía  de  viajes.  Tu  publicidad  explica,  por  supuesto,  que  ofreces  viajes  
+combinados  de  TREN  y/o  AUTOBÚS  (es  decir,  viajes  en  tren,  en  autobús,  o  usando  
+ambos),  entre  N  ciudades  del  país,  que  ofreces  un  servicio  inmejorable,  precios  muy  
+competitivos, y que garantizas ante notario algo que no ofrece ninguno de tus 
+competidores:  que  en  todos  tus  viajes  COMO  MÁXIMO  se  hará  un  solo  transbordo  
+(cambio de medio de transporte). 
+Bien, hoy es 1 de Julio y comienza la temporada de viajes. 
+¡Qué suerte! Acaba de aparecer un cliente en tu oficina. Te explica que quiere viajar 
+entre dos ciudades, Origen y Destino, y quiere saber cuánto le costará. 
+Para  responder  a  esa  pregunta  dispones  de  dos  grafos  de  costes  directos  (matriz  de  
+costes) de viajar entre las N ciudades del país, un grafo con los costes de viajar en tren y 
+otro en autobús. 
+Implementa un subprograma que calcule la tarifa mínima en estas condiciones.*/
+
+template <typename Tcoste>
+std::vector<Tcoste> DijkstraInv(const GrafoP<Tcoste>& G, const typename GrafoP<Tcoste>::vertice VerticeDestino){
+    typename GrafoP<Tcoste>::vertice indice;
+    const size_t tam = G.numVert();
+    std::vector<Tcoste> Dinv(tam,0);
+    matriz<typename GrafoP<tCoste>::vertice> Vector;
+    matriz<Tcoste> Aux = Floyd(G,vec);
+
+    for(indice=0; indice<tam; indice++){
+        Dinv[indice] = Aux[indice][VerticeDestino];
+    }
+
+    return Dinv;
+}
+
+template <typename Tcoste>
+Tcoste UnicoTransbordo(GrafoP<Tcoste> &tren, GrafoP<Tcoste> &autobus, typename GrafoP<Tcoste>::vertice Origen,typename GrafoP<Tcoste>::vertice Destino){
+    std::vector<typename GrafoP<Tcoste>::vertice> vecTren, vecBus, vecTrenInverso, vecBusInverso;
+    Tcoste Minimo = tren.INFINITO;
+
+    std::vector<Tcoste> caminoDirectotren = Dijkstra(tren,Origen,vecTren);
+    std::vector<Tcoste> caminoDirectoAutobus = Dijkstra(autobus,Origen,vecBus);
+    std::vector<Tcoste> caminoInversotren = DijkstraInv(tren,Destino);
+    std::vector<Tcoste> caminoInversoAutobus = DijkstraInv(autobus,Destino);
+
+    if(caminoDirectotren[Destino] <= caminoDirectoAutobus[Destino]){
+        Minimo = caminoDirectotren[Destino];
+    }else{
+        Minimo = caminoDirectoAutobus[Destino];
+    }
+
+    for(size_t indice=0; indice<caminoDirectotren.size(); indice++){
+        if((caminoDirectotren[indice] + caminoInversoAutobus[indice]) < Minimo){
+            Minimo = (caminoDirectotren[indice] + caminoInversoAutobus[indice]);
+        }else if((caminoDirectoAutobus[indice] + caminoInversotren[indice]) < Minimo){
+            Minimo = (caminoDirectoAutobus[indice] + caminoInversotren[indice]);
+        }
+    }
+
+    return Minimo;
+}
+
+#pragma endregion
+
+#pragma region Ejercicio9
+/*Se  dispone  de  dos  grafos  que  representan  la  matriz  de  costes  para  viajes  en  un  
+determinado país, pero por diferentes medios de transporte (tren y autobús, por 
+ejemplo).  Por  supuesto  ambos  grafos  tendrán  el  mismo  número  de  nodos,  N.  Dados  
+ambos  grafos,  una  ciudad  de  origen,  una  ciudad  de  destino  y  el  coste  del  taxi  para  
+cambiar de una estación a otra dentro de cualquier ciudad (se supone constante e igual 
+para todas las ciudades), implementa un subprograma que  calcule el camino y el coste 
+mínimo para ir de la ciudad origen a la ciudad destino.*/
+
+template <typename Tcoste>
+GrafoP<Tcoste> CrearSuperGrafo_v2(GrafoP<Tcoste> &G1, GrafoP<Tcoste> &G2, Tcoste taxi){
+    size_t SumaVertices = tren.numVert() + autobus.numVert();
+    GrafoP<Tcoste> SuperGrafo(SumaVertices);
+
+    for(size_t i=0; i<G1.numVert(); i++){
+        for(size_t j=0; j<G1.numVert(); j++){
+            SuperGrafo[i][j] = G1[i][j];
+            SuperGrafo[i+G1.numVert()][j] = taxi; 
+            SuperGrafo[i][j+G1.numVert()] = taxi;
+        }
+    }
+    for(size_t i=0; i<G2.numVert(); i++){
+        for(size_t j=0; j<G2.numVert(); j++){
+            SuperGrafo[i+G1.numVert()][j+G1.numVert()] = G2[i][j];
+        }
+    }
+
+    return SuperGrafo;
+}
+
+template <typename Tcoste>
+Tcoste ViajeTrenBus(GrafoP<Tcoste> &tren, GrafoP<Tcoste> &autobus, typename GrafoP<Tcoste>::vertice Origen,typename GrafoP<Tcoste>::vertice Destino, Tcoste taxi, std::vector<typename GrafoP<Tcoste>::vertice> &camino){
+    size_t tam = 2*tren.numVert();
+    Tcoste costeMin = tren.INFINITO;
+
+    GrafoP<Tcoste> superGrafo = CrearSuperGrafo_v2(tren,autobus,taxi);
+    std::vector<Tcoste> caminosMinimos = Dijkstra(superGrafo,Origen,camino);
+
+    for(size_t indice=0; indice<3; indice++){
+        if(caminosMinimos[Destino + (caminosMinimos.size()*indice)] < costeMin){
+            costeMin = caminosMinimos[Destino + (caminosMinimos.size()*indice)];
+        }
+    }
+
+    return costeMin;
+}
+
+#pragma endregion
+
+#pragma region Ejercico10
+/*Se  dispone  de  tres  grafos  que  representan  la  matriz  de  costes  para  viajes  en  un  
+determinado país, pero por diferentes medios de transporte (tren, autobús y avión). Por 
+supuesto los tres grafos tendrán el mismo número de nodos, N. 
+Dados los siguientes datos: 
+
+-los tres grafos, 
+-una ciudad de origen, 
+-una ciudad de destino, 
+-el coste del taxi para cambiar, dentro de una ciudad, de la estación de tren a la       
+de autobús o viceversa (taxi-tren-bus) y 
+-el  coste  del  taxi  desde  el  aeropuerto  a  la  estación  de  tren  o  la  de  autobús,  o  
+viceversa (taxi-aeropuerto-tren/bus) y asumiendo que ambos costes de taxi (distintos entre sí, son dos costes diferentes) son 
+constantes e iguales para todas las ciudades, implementa un subprograma que  calcule el 
+camino y el coste mínimo para ir de la ciudad origen a la ciudad destino.*/
+
+template <typename Tcoste>
+size_t ViajeAvionTrenBus(GrafoP<Tcoste> &avion, GrafoP<Tcoste> &tren, GrafoP<Tcoste> &autobus, typename GrafoP<Tcoste>::vertice Origen,typename GrafoP<Tcoste>::vertice Destino, Tcoste Taxi, std::vector<typename GrafoP<Tcoste>::vertice> &caminos){
+    size_t costeMin = avion.INFINITO;
+    GrafoP<Tcoste> Aux = CrearSuperGrafo(avion,tren);
+    GrafoP<Tcoste> pais = CrearSuperGrafo(Aux,autobus);
+
+    std::vector<Tcoste> camino = Dijkstra(pais,Origen,caminos);
+
+    for(size_t indice=0; indice<3; indice++){
+        if(camino[Destino + (camino.size()*indice)] < costeMin){
+            costeMin = camino[Destino + (camino.size()*indice)];
+        }
+    }
+
+    return costeMin;
+}
+
+#pragma endregion 
 
 #pragma region EjercicioExtra
 /*
