@@ -391,18 +391,17 @@ Viaje<Tcoste> ViajeRuta(GrafoP<Tcoste> &tren, GrafoP<Tcoste> &autobus, typename 
     matriz<Tcoste> GrafoFinal = Floyd(SuperGrafo,caminos);   
     viaje.coste = GrafoFinal[Origen][Destino];
 
-    typename GrafoP<Tcoste>::vertice aux = caminos[Origen][Destino];
-    //intermedio = caminos[Origen][Destino];
-    //aux = origen
+    typename GrafoP<Tcoste>::vertice intermedio = caminos[Origen][Destino];
+    typename GrafoP<Tcoste>::vertice vertice = Origen;
+    typename GrafoP<Tcoste>::vertice aux;
+
     viaje.camino.push_back(Origen);
-    while(aux != Destino){
-        //intermedio != destino
-        //Incluir un vertice mas auxiliar
-        //intermedio = caminos[aux][intermedio];
-        //aux = intermedio
-        aux = caminos[Origen][aux];
-        viaje.camino.push_back(aux);
-        //viaje.camino.push_back(intermedio);
+    while(intermedio != Destino){
+        viaje.camino.push_back(intermedio);
+        
+        aux = intermedio;
+        intermedio = caminos[vertice][intermedio];
+        vertice = aux;
     }    
     viaje.camino.push_back(Destino);
 
